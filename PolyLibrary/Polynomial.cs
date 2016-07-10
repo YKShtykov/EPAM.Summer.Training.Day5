@@ -34,17 +34,17 @@ namespace PolyLibrary
       {
         if (a.length > i && b.length > i)
         {
-          result[i] = a.сoefficients.koefArr[i] + b.сoefficients.koefArr[i];
+          result[i] = a.сoefficients.coeficientsArr[i] + b.сoefficients.coeficientsArr[i];
         }
         else
         {
           if (a.length < i)
           {
-            result[i] = b.сoefficients.koefArr[i];
+            result[i] = b.сoefficients.coeficientsArr[i];
           }
           else
           {
-            result[i] = a.сoefficients.koefArr[i];
+            result[i] = a.сoefficients.coeficientsArr[i];
           }
         }
       }
@@ -65,17 +65,17 @@ namespace PolyLibrary
       {
         if (a.length > i && b.length > i)
         {
-          result[i] = a.сoefficients.koefArr[i] - b.сoefficients.koefArr[i];
+          result[i] = a.сoefficients.coeficientsArr[i] - b.сoefficients.coeficientsArr[i];
         }
         else
         {
           if (a.length < i)
           {
-            result[i] = -b.сoefficients.koefArr[i];
+            result[i] = -b.сoefficients.coeficientsArr[i];
           }
           else
           {
-            result[i] = a.сoefficients.koefArr[i];
+            result[i] = a.сoefficients.coeficientsArr[i];
           }
         }
       }
@@ -96,7 +96,7 @@ namespace PolyLibrary
       {
         for (int j = 0; j < b.length; j++)
         {
-          result[i + j] += a.сoefficients.koefArr[i] * b.сoefficients.koefArr[j];
+          result[i + j] += a.сoefficients.coeficientsArr[i] * b.сoefficients.coeficientsArr[j];
         }
       }
       return new Polynomial(result);
@@ -113,7 +113,7 @@ namespace PolyLibrary
       double[] result = new double[a.length];
       for (int i = 0; i < a.length; i++)
       {
-        result[i] = a.сoefficients.koefArr[i] * b;
+        result[i] = a.сoefficients.coeficientsArr[i] * b;
       }
       return new Polynomial(result);
     }
@@ -129,7 +129,7 @@ namespace PolyLibrary
       double[] result = new double[a.length];
       for (int i = 0; i < a.length; i++)
       {
-        result[i] = a.сoefficients.koefArr[i] * b;
+        result[i] = a.сoefficients.coeficientsArr[i] * b;
       }
       return new Polynomial(result);
     }
@@ -149,7 +149,7 @@ namespace PolyLibrary
       bool result = true;
       for (int i = 0; i < a.length; i++)
       {
-        if (a.сoefficients.koefArr[i]!=b.сoefficients.koefArr[i])
+        if (a.сoefficients.coeficientsArr[i]!=b.сoefficients.coeficientsArr[i])
         {
           result = false;
         }
@@ -172,7 +172,7 @@ namespace PolyLibrary
       bool result = true;
       for (int i = 0; i < a.length; i++)
       {
-        if (a.сoefficients.koefArr[i] != b.сoefficients.koefArr[i])
+        if (a.сoefficients.coeficientsArr[i] != b.сoefficients.coeficientsArr[i])
         {
           result = false;
         }
@@ -197,6 +197,17 @@ namespace PolyLibrary
       return this == p;
     }
 
+    /// <summary>
+    /// Overrided System.Object method GetHashCode
+    /// </summary>
+    /// <param name="a"></param>
+    /// <param name="b"></param>
+    /// <returns></returns>
+    public override int GetHashCode()
+    {
+      return сoefficients.coeficientsArr.GetHashCode();
+    }
+
     public static bool Equals(Polynomial a, Polynomial b)
     {
       return a.Equals(b);
@@ -212,16 +223,16 @@ namespace PolyLibrary
     {
       var result = new StringBuilder();
 
-      result.AppendFormat("{0}",сoefficients.koefArr[0]);
+      result.AppendFormat("{0}",сoefficients.coeficientsArr[0]);
       for(int i =1;i<length;i++)
       {
-        if (сoefficients.koefArr[i]>=0)
+        if (сoefficients.coeficientsArr[i]>=0)
         {
-          result.AppendFormat("+{0}x^{1}", сoefficients.koefArr[i], i);
+          result.AppendFormat("+{0}x^{1}", сoefficients.coeficientsArr[i], i);
         }
         else
         {
-          result.AppendFormat("{0}x^{1}", сoefficients.koefArr[i], i);
+          result.AppendFormat("{0}x^{1}", сoefficients.coeficientsArr[i], i);
         }        
       }
 
@@ -231,12 +242,12 @@ namespace PolyLibrary
 
   struct Сoefficients
   {
-    public double[] koefArr { get; private set; }
+    public double[] coeficientsArr { get; private set; }
 
 
     public Сoefficients(double[] arr)
     {
-      koefArr = arr;
+      coeficientsArr = arr;
     }
   }
 }
