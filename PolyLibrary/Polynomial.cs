@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace PolyLibrary
 {
@@ -7,17 +9,69 @@ namespace PolyLibrary
   /// </summary>
   public class Polynomial
   {
-    private readonly Сoefficients сoefficients;
+    public struct Сoefficient
+    {
+      public double coefficient;
+      public int degree;
+
+      public Сoefficient(double c, int d)
+      {
+        coefficient = c;
+        degree = d;
+      }
+    }
+
+    private readonly Сoefficient[] coeficients;
+    private readonly int degree;
     private readonly int length;
+    public static readonly double epsilon;
+
 
     /// <summary>
-    /// Constructor initializes polinomian coefficients and length 
+    /// Constructor initializes polinomian coefficients and degree 
     /// </summary>
     /// <param name="arr"></param>
     public Polynomial(double[] arr)
     {
-      сoefficients = new Сoefficients(arr);
+      int temp = 0;
+      for (int i = 0; i < arr.Length; i++)
+      {
+        if (Math.Abs(arr[i]) > epsilon)
+        {
+          temp++;
+        }
+      }
+
+      coeficients = new Сoefficient[temp];
+      temp = 0;
+      int tempDegree = 0;
+      for (int i = 0; i < arr.Length; i++)
+      {
+        if (Math.Abs(arr[i]) > epsilon)
+        {
+          coeficients[temp] = new Сoefficient(arr[i], i);
+          tempDegree = i;
+          temp++;
+        }
+      }
+      degree = tempDegree;
+      length = temp;
+    }
+
+    private Polynomial(Сoefficient[] arr)
+    {
+      coeficients = arr;
       length = arr.Length;
+      int temp = 0;
+      foreach (var item in arr)
+      {
+        if (item.degree > temp)
+        {
+          temp = item.degree;
+        }
+      }
+      degree = temp;
+
     }
 
     /// <summary>
@@ -28,27 +82,44 @@ namespace PolyLibrary
     /// <returns></returns>
     public static Polynomial operator +(Polynomial a, Polynomial b)
     {
-      int resultLength = (a.length > b.length) ? a.length : b.length;
-      double[] result = new double[resultLength];
-      for (int i = 0; i < resultLength; i++)
+      List<Сoefficient> list = new List<Сoefficient>();
+
+      foreach (var item in a.coeficients)
       {
-        if (a.length > i && b.length > i)
+        bool consist = false;
+        foreach (var anItem in b.coeficients)
         {
-          result[i] = a.сoefficients.coeficientsArr[i] + b.сoefficients.coeficientsArr[i];
+          if (item.degree == anItem.degree)
+          {
+            consist = true;
+            list.Add(new Сoefficient(item.coefficient + anItem.coefficient, item.degree));
+          }
         }
-        else
+        if (!consist)
         {
-          if (a.length < i)
-          {
-            result[i] = b.сoefficients.coeficientsArr[i];
-          }
-          else
-          {
-            result[i] = a.сoefficients.coeficientsArr[i];
-          }
+          list.Add(new Сoefficient(item.coefficient, item.degree));
         }
       }
-      return new Polynomial(result);
+
+      foreach (var item in b.coeficients)
+      {
+        bool consists = false;
+        foreach (var anItem in list)
+        {
+          if (item.degree == anItem.degree)
+          {
+            consists = true;
+          }
+        }
+        if (!consists)
+        {
+          list.Add(new Сoefficient(item.coefficient, item.degree));
+        }
+      }
+
+      Сoefficient[] arr = list.ToArray();
+
+      return new Polynomial(arr);
     }
 
     /// <summary>
@@ -59,27 +130,7 @@ namespace PolyLibrary
     /// <returns></returns>
     public static Polynomial operator -(Polynomial a, Polynomial b)
     {
-      int resultLength = (a.length > b.length) ? a.length : b.length;
-      double[] result = new double[resultLength];
-      for (int i = 0; i < resultLength; i++)
-      {
-        if (a.length > i && b.length > i)
-        {
-          result[i] = a.сoefficients.coeficientsArr[i] - b.сoefficients.coeficientsArr[i];
-        }
-        else
-        {
-          if (a.length < i)
-          {
-            result[i] = -b.сoefficients.coeficientsArr[i];
-          }
-          else
-          {
-            result[i] = a.сoefficients.coeficientsArr[i];
-          }
-        }
-      }
-      return new Polynomial(result);
+      return a + (-1 * b);
     }
 
     /// <summary>
@@ -90,16 +141,17 @@ namespace PolyLibrary
     /// <returns></returns>
     public static Polynomial operator *(Polynomial a, Polynomial b)
     {
-      int resultLength =a.length + b.length-1;
-      double[] result = new double[resultLength];
+      int resultlength = a.length + b.length - 1;
+      Сoefficient[] arr = new Сoefficient[resultlength];
       for (int i = 0; i < a.length; i++)
       {
         for (int j = 0; j < b.length; j++)
         {
-          result[i + j] += a.сoefficients.coeficientsArr[i] * b.сoefficients.coeficientsArr[j];
+          arr[i + j].coefficient += a.coeficients[i].coefficient * b.coeficients[j].coefficient;
+          arr[i + j].degree = a.coeficients[i].degree + b.coeficients[j].degree;
         }
       }
-      return new Polynomial(result);
+      return new Polynomial(arr);
     }
 
     /// <summary>
@@ -109,13 +161,14 @@ namespace PolyLibrary
     /// <param name="b"></param>
     /// <returns></returns>
     public static Polynomial operator *(Polynomial a, int b)
-    {      
-      double[] result = new double[a.length];
+    {
+      Сoefficient[] arr = new Сoefficient[a.length];
       for (int i = 0; i < a.length; i++)
       {
-        result[i] = a.сoefficients.coeficientsArr[i] * b;
+        arr[i].coefficient = a.coeficients[i].coefficient * b;
+        arr[i].degree = a.coeficients[i].degree;
       }
-      return new Polynomial(result);
+      return new Polynomial(arr);
     }
 
     /// <summary>
@@ -126,12 +179,7 @@ namespace PolyLibrary
     /// <returns></returns>
     public static Polynomial operator *(int b, Polynomial a)
     {
-      double[] result = new double[a.length];
-      for (int i = 0; i < a.length; i++)
-      {
-        result[i] = a.сoefficients.coeficientsArr[i] * b;
-      }
-      return new Polynomial(result);
+      return a * b;
     }
 
     /// <summary>
@@ -140,21 +188,9 @@ namespace PolyLibrary
     /// <param name="a"></param>
     /// <param name="b"></param>
     /// <returns></returns>
-    public static bool operator ==(Polynomial a,Polynomial b)
+    public static bool operator ==(Polynomial a, Polynomial b)
     {
-      if (a.length != b.length)
-      {
-        return false;
-      }
-      bool result = true;
-      for (int i = 0; i < a.length; i++)
-      {
-        if (a.сoefficients.coeficientsArr[i]!=b.сoefficients.coeficientsArr[i])
-        {
-          result = false;
-        }
-      }
-      return result;
+      return a.Equals(b);
     }
 
     /// <summary>
@@ -165,19 +201,7 @@ namespace PolyLibrary
     /// <returns></returns>
     public static bool operator !=(Polynomial a, Polynomial b)
     {
-      if (a.length != b.length)
-      {
-        return true;
-      }
-      bool result = true;
-      for (int i = 0; i < a.length; i++)
-      {
-        if (a.сoefficients.coeficientsArr[i] != b.сoefficients.coeficientsArr[i])
-        {
-          result = false;
-        }
-      }
-      return !result;
+      return !a.Equals(b);
     }
 
     /// <summary>
@@ -188,13 +212,39 @@ namespace PolyLibrary
     /// <returns></returns>
     public override bool Equals(object obj)
     {
-      Polynomial p = obj as Polynomial;
-      if (obj == null)
+      if (ReferenceEquals(null, obj)) return false;
+      if (ReferenceEquals(this, obj)) return true;
+      if (obj.GetType() == typeof(Polynomial))
       {
-        return false;
+        return Equals((Polynomial)obj);
+      }
+      return false;
+    }
+
+    public bool Equals(Polynomial poly)
+    {
+      if (ReferenceEquals(null, poly)) return false;
+      if (ReferenceEquals(this, poly)) return true;
+      if (length != poly.length) return false;
+
+      foreach (var item in coeficients)
+      {
+        bool consist = false;
+
+        foreach (var anitem in poly.coeficients)
+        {
+          if (item.coefficient == anitem.coefficient && item.degree == anitem.degree)
+          {
+            consist = true;
+          }
+        }
+        if (!consist)
+        {
+          return false;
+        }
       }
 
-      return this == p;
+      return true;
     }
 
     /// <summary>
@@ -205,7 +255,7 @@ namespace PolyLibrary
     /// <returns></returns>
     public override int GetHashCode()
     {
-      return сoefficients.coeficientsArr.GetHashCode();
+      return coeficients.GetHashCode();
     }
 
     public static bool Equals(Polynomial a, Polynomial b)
@@ -223,31 +273,19 @@ namespace PolyLibrary
     {
       var result = new StringBuilder();
 
-      result.AppendFormat("{0}",сoefficients.coeficientsArr[0]);
-      for(int i =1;i<length;i++)
+      for (int i = 0; i < length; i++)
       {
-        if (сoefficients.coeficientsArr[i]>=0)
+        if (coeficients[i].coefficient >= 0)
         {
-          result.AppendFormat("+{0}x^{1}", сoefficients.coeficientsArr[i], i);
+          result.AppendFormat("+{0}x^{1}", coeficients[i].coefficient, coeficients[i].degree);
         }
         else
         {
-          result.AppendFormat("{0}x^{1}", сoefficients.coeficientsArr[i], i);
-        }        
+          result.AppendFormat("{0}x^{1}", coeficients[i].coefficient, coeficients[i].degree);
+        }
       }
 
       return result.ToString();
-    }
-  }
-
-  struct Сoefficients
-  {
-    public double[] coeficientsArr { get; private set; }
-
-
-    public Сoefficients(double[] arr)
-    {
-      coeficientsArr = arr;
     }
   }
 }

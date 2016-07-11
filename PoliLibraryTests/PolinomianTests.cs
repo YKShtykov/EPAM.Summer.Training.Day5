@@ -28,11 +28,11 @@ namespace PoliLibraryTests
     [Test]
     public void Minus()
     {
-      Polynomial expended = new Polynomial(new double[] { -1, 2, 1, 7, 5 });
+      Polynomial expected = new Polynomial(new double[] { -1, 2, 1, 7, 5 });
 
       Polynomial actual = polyA - polyB;
 
-      Assert.AreEqual(expended, actual);
+      Assert.AreEqual(expected, actual);
     }
 
     /// <summary>
@@ -67,7 +67,7 @@ namespace PoliLibraryTests
     [Test]
     public void ToStringTest()
     {
-      string expended = "0+3x^1+2x^2+8x^3+5x^4";
+      string expended = "+3x^1+2x^2+8x^3+5x^4";
 
       string actual = polyA.ToString();
 
